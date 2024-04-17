@@ -75,10 +75,12 @@ class Register {
     }
 }
 
+// PricingScheme protocol
 protocol PricingScheme {
     func applyDiscount(items: [SKU]) -> Int
 }
 
+// 2-for-1 pricing extra credit
 class TwoForOnePricing: PricingScheme {
     private let itemName: String
     private let itemPrice: Int
@@ -88,11 +90,31 @@ class TwoForOnePricing: PricingScheme {
         self.itemPrice = itemPrice
     }
     
+    // applies the 2-for-1 discount to eligible items
     func applyDiscount(items: [SKU]) -> Int {
         let eligibleItems = items.filter { $0.name == itemName }
         let groupsOfThree = eligibleItems.count / 3
         let remainingItems = eligibleItems.count % 3
         return (groupsOfThree * 2 + remainingItems) * itemPrice
+    }
+}
+
+// grouped purchases extra credit
+class GroupedPricing: PricingScheme {
+    private let eligibleItems: [String]
+    private let discountPercentage: Double
+    
+    init(eligibleItems: [String], discountPercentage: Double) {
+        self.eligibleItems = eligibleItems
+        self.discountPercentage = discountPercentage
+    }
+    
+    func applyDiscount(items: [SKU]) -> Int {
+        let filteredItems = items.filter { eligibleItems.contains($0.name) }
+        guard filteredItems.count == eligibleItems.count else { return items.reduce(0) { $0 + $1.price() } }
+        let discountedPrice = filteredItems.reduce(0) { $0 + Int(Double($1.price()) * (1 - discountPercentage)) }
+        let regularPrice = items.filter { eligibleItems.contains($0.name) }.reduce(0) { $0 + $1.price() }
+        return discountedPrice + regularPrice
     }
 }
 

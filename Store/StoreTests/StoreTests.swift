@@ -67,6 +67,7 @@ TOTAL: $7.97
         XCTAssertEqual(expectedReceipt, receipt.output())
     }
     
+    // tests 2-for-1 extra credit task
     func testTwoForOnePricing() {
         let price = TwoForOnePricing(itemName: "Beans", itemPrice: 199)
         register = Register(pricingScheme: price)
