@@ -118,6 +118,28 @@ class GroupedPricing: PricingScheme {
     }
 }
 
+// WeightedSKU protocol
+protocol WeightedSKU {
+    var weight: Double { get }
+}
+
+// priced by weight extra credit
+class WeightedItem: WeightedSKU {
+    var itemName: String
+    var weight: Double
+    private var pricePerPound: Int
+    
+    init(itemName: String, weight: Double, pricePerPound: Int) {
+        self.itemName = itemName
+        self.weight = weight
+        self.pricePerPound = pricePerPound
+    }
+    
+    func price() -> Int {
+        return Int(Double(pricePerPound) * weight)
+    }
+}
+
 class Store {
     let version = "0.1"
     func helloWorld() -> String {
