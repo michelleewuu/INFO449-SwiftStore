@@ -66,4 +66,13 @@ TOTAL: $7.97
 """
         XCTAssertEqual(expectedReceipt, receipt.output())
     }
+    
+    func testTwoForOnePricing() {
+        let price = TwoForOnePricing(itemName: "Beans", itemPrice: 199)
+        register = Register(pricingScheme: price)
+        register.scan(Item(name: "Beans", priceEach: 199))
+        register.scan(Item(name: "Beans", priceEach: 199))
+        register.scan(Item(name: "Beans", priceEach: 199))
+        XCTAssertEqual(398, register.subtotal(), "Subtotal should reflect 2-for-1 pricing")
+    }
 }

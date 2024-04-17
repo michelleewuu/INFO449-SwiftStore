@@ -54,19 +54,45 @@ class Receipt {
 
 class Register {
     private var currReceipt = Receipt()
+    private var pricingScheme: PricingScheme?
+    init(pricingScheme: PricingScheme? = nil) {
+        self.currReceipt = Receipt()
+        self.pricingScheme = pricingScheme
+    }
     
     func scan(_ item: SKU) {
         currReceipt.addItem(item)
     }
     
     func subtotal() -> Int {
-        return currReceipt.total()
+        return pricingScheme?.applyDiscount(items: currReceipt.items()) ?? currReceipt.total()
     }
     
     func total() -> Receipt {
         let finalReceipt = currReceipt
         currReceipt = Receipt()
         return finalReceipt
+    }
+}
+
+protocol PricingScheme {
+    func applyDiscount(items: [SKU]) -> Int
+}
+
+class TwoForOnePricing: PricingScheme {
+    private let itemName: String
+    private let itemPrice: Int
+    
+    init(itemName: String, itemPrice: Int) {
+        self.itemName = itemName
+        self.itemPrice = itemPrice
+    }
+    
+    func applyDiscount(items: [SKU]) -> Int {
+        let eligibleItems = items.filter { $0.name == itemName }
+        let groupsOfThree = eligibleItems.count / 3
+        let remainingItems = eligibleItems.count % 3
+        return (groupsOfThree * 2 + remainingItems) * itemPrice
     }
 }
 
