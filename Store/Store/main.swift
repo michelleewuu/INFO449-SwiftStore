@@ -140,6 +140,31 @@ class WeightedItem: WeightedSKU {
     }
 }
 
+// coupon extra credit
+class Coupon: PricingScheme {
+    var itemName: String
+    var discount: Double
+    
+    init(itemName: String, discount: Double) {
+        self.itemName = itemName
+        self.discount = discount
+    }
+    
+    func applyDiscount(items: [SKU]) -> Int {
+        var total = 0
+        var itemsDiscounted = false
+        for item in items {
+            if !itemsDiscounted && item.name == itemName {
+                total += Int(Double(item.price()) * (1 - discount))
+                itemsDiscounted = true
+            } else {
+                total += item.price()
+            }
+        }
+        return total
+    }
+}
+
 class Store {
     let version = "0.1"
     func helloWorld() -> String {
