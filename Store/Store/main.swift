@@ -165,6 +165,36 @@ class Coupon: PricingScheme {
     }
 }
 
+// rain check extra credit
+class RainCheck: PricingScheme {
+    var itemName: String
+    var promisedPrice: Int
+    var weight: Double?
+    
+    init(itemName: String, promisedPrice: Int, weight: Double?) {
+        self.itemName = itemName
+        self.promisedPrice = promisedPrice
+        self.weight = weight
+    }
+    
+    func applyDiscount(items: [SKU]) -> Int {
+        var total = 0
+        var itemsDiscounted = false
+        for item in items {
+            if weight != nil && !itemsDiscounted && item.name == itemName{
+                total += Int(Double(promisedPrice) * (weight ?? 1))
+                itemsDiscounted = true
+            } else if !itemsDiscounted && item.name == itemName {
+                total += promisedPrice
+                itemsDiscounted = true
+            } else {
+                total += item.price()
+            }
+        }
+        return total
+    }
+}
+
 class Store {
     let version = "0.1"
     func helloWorld() -> String {
