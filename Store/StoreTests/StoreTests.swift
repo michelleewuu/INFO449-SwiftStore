@@ -76,4 +76,48 @@ TOTAL: $7.97
         register.scan(Item(name: "Beans", priceEach: 199))
         XCTAssertEqual(398, register.subtotal(), "Subtotal should reflect 2-for-1 pricing")
     }
+    
+    func testGroupedPricing() {
+        let item1 = Item(name: "Ketchup", priceEach: 100)
+        let item2 = Item(name: "Beer", priceEach: 200)
+        let pricingScheme = GroupedPricing(eligibleItems: ["Ketchup", "Beer"], discountPercentage: 0.10)
+        let items = [item1, item2]
+        
+        let total = pricingScheme.applyDiscount(items: items)
+        XCTAssertEqual(total, 270, "Grouped Pricing failed")
+    }
+    
+    func testWeightedItem() {
+        let weightedItem = WeightedItem(name: "Banana", weight: 2.5, pricePerPound: 100)
+        let price = weightedItem.price()
+        XCTAssertEqual(price, 250, "Weighted item pricing failed")
+    }
+    
+    // Test for Coupon
+    func testCoupon() {
+        let item = Item(name: "Orange", priceEach: 100)
+        let coupon = Coupon(itemName: "Orange", discount: 0.15)
+        let items = [item, item]
+        
+        let total = coupon.applyDiscount(items: items)
+        XCTAssertEqual(total, 185, "Coupon discount failed")
+    }
+    
+    func testRainCheck() {
+        let item = Item(name: "Grapes", priceEach: 200)
+        let rainCheck = RainCheck(itemName: "Grapes", promisedPrice: 150, weight: nil)
+        let items = [item, item]
+        
+        let total = rainCheck.applyDiscount(items: items)
+        XCTAssertEqual(total, 350, "RainCheck discount failed")
+    }
+    
+    func testRainCheckWithWeight() {
+        let item = WeightedItem(name: "Watermelon", weight: 3.0, pricePerPound: 100)
+        let rainCheck = RainCheck(itemName: "Watermelon", promisedPrice: 80, weight: 3.0)
+        let items = [item]
+        
+        let total = rainCheck.applyDiscount(items: items)
+        XCTAssertEqual(total, 240, "RainCheck with weight discount failed")
+    }
 }

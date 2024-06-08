@@ -111,12 +111,19 @@ class GroupedPricing: PricingScheme {
     
     func applyDiscount(items: [SKU]) -> Int {
         let filteredItems = items.filter { eligibleItems.contains($0.name) }
-        guard filteredItems.count == eligibleItems.count else { return items.reduce(0) { $0 + $1.price() } }
+        
+        for item in eligibleItems {
+            if !filteredItems.contains(where: { $0.name == item }) {
+                return items.reduce(0) { $0 + $1.price() }
+            }
+        }
+        
         let discountedPrice = filteredItems.reduce(0) { $0 + Int(Double($1.price()) * (1 - discountPercentage)) }
-        let regularPrice = items.filter { eligibleItems.contains($0.name) }.reduce(0) { $0 + $1.price() }
+        let regularPrice = items.filter { !eligibleItems.contains($0.name) }.reduce(0) { $0 + $1.price() }
         return discountedPrice + regularPrice
     }
 }
+
 
 // WeightedSKU protocol
 protocol WeightedSKU {
@@ -124,13 +131,13 @@ protocol WeightedSKU {
 }
 
 // priced by weight extra credit
-class WeightedItem: WeightedSKU {
-    var itemName: String
+class WeightedItem: SKU, WeightedSKU {
+    var name: String
     var weight: Double
     private var pricePerPound: Int
     
-    init(itemName: String, weight: Double, pricePerPound: Int) {
-        self.itemName = itemName
+    init(name: String, weight: Double, pricePerPound: Int) {
+        self.name = name
         self.weight = weight
         self.pricePerPound = pricePerPound
     }
